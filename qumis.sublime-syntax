@@ -1,0 +1,72 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: QuMIS
+comment: QuMIS Bundle by Xiang Fu (x.fu-1@tudelft.nl)\
+         verion 1.0,  2016-12-7
+file_extensions:
+  - qumis
+  - asm
+scope: source.qumis
+contexts:
+  main:
+    - include: cleanup
+  labels:
+    - match: '.*:'
+      scope: variable.function.qumis
+  cleanup:
+    - include: comments
+    - include: labels
+    - include: constants_numeric
+    - include: strings
+    - include: keywords
+    - include: register
+  comments:
+    - match: '#.*$\n?'
+      scope: comment.line.hash.qumis
+  register:
+    - match: r\d+
+      scope: string.unquoted.qumis
+  keywords:
+    - match: \b(?i:mov|add|addi|sub)\b
+      scope: variable.parameter.qumis
+    - match: \b(?i:beq|bne)\b
+      scope: entity.name.function.qumis
+    - match: \b(?i:wait|waitreg)\b
+      scope: keyword.time.instruction.qumis
+    - match: \b(?i:pulse|trigger|measure)\b
+      scope: keyword.event.instruction.qumis
+  strings:
+    - match: "'.'"
+      scope: string.quoted.single.qumis
+    - match: '"'
+      push:
+        - meta_scope: string.quoted.double.qumis
+        - match: '"'
+          pop: true
+        - match: \\.
+          scope: constant.character.escape.qumis
+    - match: \\
+      push:
+        - meta_scope: string.other.backslash.qumis
+        - match: \\
+          pop: true
+  constants_numeric:
+    - match: '\b([+\-]?[\d_]+\.[\d_]+([eE][+\-]?[\d_]+)?)\b'
+      scope: constant.numeric.floating_point.qumis
+    - match: '\b\d+#[\h_]+#\b'
+      scope: constant.numeric.base_pound_number_pound.qumis
+    - match: '\b[\d_]+([eE][\d_]+)?\b'
+      scope: constant.numeric.integer.qumis
+    - match: '[xX]"[0-9a-fA-F_uUxXzZwWlLhH\-]+"'
+      scope: constant.numeric.quoted.double.string.hex.qumis
+    - match: '[oO]"[0-7_uUxXzZwWlLhH\-]+"'
+      scope: constant.numeric.quoted.double.string.octal.qumis
+    - match: '[bB]?"[01_uUxXzZwWlLhH\-]+"'
+      scope: constant.numeric.quoted.double.string.binary.qumis
+    - match: '([bBoOxX]".+?")'
+      scope: constant.numeric.quoted.double.string.illegal.qumis
+      captures:
+        1: invalid.illegal.quoted.double.string.qumis
+    - match: '''[01uUxXzZwWlLhH\-]'''
+      scope: constant.numeric.quoted.single.std_logic
