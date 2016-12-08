@@ -12,7 +12,7 @@ contexts:
   main:
     - include: cleanup
   labels:
-    - match: '.*:'
+    - match: '(^|\W)[a-zA-z][a-zA-z0-9_]*:'
       scope: variable.function.qumis
   cleanup:
     - include: comments
