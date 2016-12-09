@@ -28,13 +28,13 @@ contexts:
     - match: '^\..+'
       scope: variable.function.qasm
   keywords:
-    - match: \b(?i:qubits|map)\b
+    - match: \b(?i:|qubit|qubits|map)\b
       scope: keyword.qubit.qasm
-    - match: \b(?i:i|h|cnot|swap|x|x90|x180|y|y90|y180|z|s|rx|ry|rz|ph|cph|cx|cz|prepz|cy|t|tdag|toffoli|depolarizing_channel|load_state)\b
+    - match: \b(?i:i|h|cnot|swap|x|x90|x180|mx90|y|y90|my90|y180|z|s|rx|ry|rz|ph|cph|cx|cz|prepz|cy|t|tdag|toffoli|depolarizing_channel|load_state)\b
       scope: variable.parameter.qasm
     - match: \b(?i:c-x|c-z)\b
       scope: keyword.binary_control.qasm
-    - match: \b(?i:measure|prepz|init|ro|initall)\b
+    - match: \b(?i:measure|prepz|init|ro|init_all)\b
       scope: keyword.measure.qasm
     - match: \b(?i:noise|decoherence|qec|error_model)\b
       scope: keyword.config.qasm
