@@ -1,4 +1,4 @@
-# Qcode_Highlighting
+# qasm_highlighting
 Sublime Text 3 package for QASM and QuMIS syntax highlighting.
 
 ## Installation
