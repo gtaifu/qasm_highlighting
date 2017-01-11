@@ -1,0 +1,16 @@
+{
+    "schema_version": "3.0.0",
+    "packages": [{
+        "name": "qasm_highlighting",
+        "details": "https://github.com/gtaifu/qasm_highlighting",
+        "description": "qasm_highlighting - QASM and QuMIS syntax highlighting.",
+        "labels": ["language syntax"],
+        "releases": [
+            {
+                "sublime_text": "*",
+                "tags": true,
+                "dependencies": ["Monokai Theme"]
+            }
+        ]
+    }]
+}
