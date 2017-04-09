@@ -28,7 +28,7 @@ contexts:
     - match: r\d+
       scope: string.unquoted.qumis
   keywords:
-    - match: \b(?i:mov|add|addi|sub)\b
+    - match: \b(?i:mov|add|addi|sub|nop)\b
       scope: variable.parameter.qumis
     - match: \b(?i:beq|bne)\b
       scope: entity.name.function.qumis
