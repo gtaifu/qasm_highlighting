@@ -256,7 +256,7 @@ contexts:
     - include: ignored_content
 
   single_qubit_list:
-    - match: '\s*[1-7]\s*'
+    - match: '\s*[0-6]\s*'
       scope: entity.name.function.eqasm
     - match: ','
       push: single_qubit_number
@@ -266,7 +266,7 @@ contexts:
     - include: ignored_content
 
   single_qubit_number:
-    - match: '\s*[1-7]\s*'
+    - match: '\s*[0-6]\s*'
       scope: entity.name.function.eqasm
       pop: true
     - match: '.*'
@@ -285,7 +285,7 @@ contexts:
       pop: true
 
   two_qubit_list:
-    - match: '\s*\(\s*([1-7])\s*,\s*([1-7])\s*\)\s*'
+    - match: '\s*\(\s*([0-6])\s*,\s*([0-6])\s*\)\s*'
       captures:
         1: entity.name.function.eqasm
         2: entity.name.function.eqasm
@@ -297,7 +297,7 @@ contexts:
     - include: ignored_content
 
   two_qubit_pair:
-    - match: '\s*\(\s*([1-7])\s*,\s*([1-7])\s*\)\s*'
+    - match: '\s*\(\s*([0-6])\s*,\s*([0-6])\s*\)\s*'
       captures:
         1: entity.name.function.eqasm
         2: entity.name.function.eqasm
