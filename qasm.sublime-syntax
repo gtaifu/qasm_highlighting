@@ -3,7 +3,7 @@
 # http://www.sublimetext.com/docs/3/syntax.html
 name: QASM
 comment: QASM Bundle by Xiang Fu (x.fu-1@tudelft.nl)\
-         verion 1.0,  2016-12-7
+         verion 1.1,  2016-12-7
 file_extensions:
   - qasm
   - qc
@@ -13,7 +13,7 @@ contexts:
     - include: cleanup
   labels:
     - match: '.*:'
-      scope: variable.function.qumis
+      scope: variable.function.qasm
   cleanup:
     - include: comments
     - include: labels
@@ -23,7 +23,7 @@ contexts:
     - include: keywords
   comments:
     - match: '#.*$\n?'
-      scope: comment.line.hash.qumis
+      scope: comment.line.hash.qasm
   function:
     - match: '^\..+'
       scope: variable.function.qasm
@@ -42,35 +42,35 @@ contexts:
       scope: entity.name.function.qasm
   strings:
     - match: "'.'"
-      scope: string.quoted.single.qumis
+      scope: string.quoted.single.qasm
     - match: '"'
       push:
-        - meta_scope: string.quoted.double.qumis
+        - meta_scope: string.quoted.double.qasm
         - match: '"'
           pop: true
         - match: \\.
-          scope: constant.character.escape.qumis
+          scope: constant.character.escape.qasm
     - match: \\
       push:
-        - meta_scope: string.other.backslash.qumis
+        - meta_scope: string.other.backslash.qasm
         - match: \\
           pop: true
   constants_numeric:
     - match: '\b([+\-]?[\d_]+\.[\d_]+([eE][+\-]?[\d_]+)?)\b'
-      scope: constant.numeric.floating_point.qumis
+      scope: constant.numeric.floating_point.qasm
     - match: '\b\d+#[\h_]+#\b'
-      scope: constant.numeric.base_pound_number_pound.qumis
+      scope: constant.numeric.base_pound_number_pound.qasm
     - match: '\b[\d_]+([eE][\d_]+)?\b'
-      scope: constant.numeric.integer.qumis
+      scope: constant.numeric.integer.qasm
     - match: '[xX]"[0-9a-fA-F_uUxXzZwWlLhH\-]+"'
-      scope: constant.numeric.quoted.double.string.hex.qumis
+      scope: constant.numeric.quoted.double.string.hex.qasm
     - match: '[oO]"[0-7_uUxXzZwWlLhH\-]+"'
-      scope: constant.numeric.quoted.double.string.octal.qumis
+      scope: constant.numeric.quoted.double.string.octal.qasm
     - match: '[bB]?"[01_uUxXzZwWlLhH\-]+"'
-      scope: constant.numeric.quoted.double.string.binary.qumis
+      scope: constant.numeric.quoted.double.string.binary.qasm
     - match: '([bBoOxX]".+?")'
-      scope: constant.numeric.quoted.double.string.illegal.qumis
+      scope: constant.numeric.quoted.double.string.illegal.qasm
       captures:
-        1: invalid.illegal.quoted.double.string.qumis
+        1: invalid.illegal.quoted.double.string.qasm
     - match: '''[01uUxXzZwWlLhH\-]'''
       scope: constant.numeric.quoted.single.std_logic

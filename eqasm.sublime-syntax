@@ -1,0 +1,354 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: eQASM
+comment: eQASM Bundle by Xiang Fu (x.fu-1@tudelft.nl)\
+         verion 1.0,  2017-11-24
+file_extensions:
+  - qisa
+  - eqasm
+scope: source.eqasm
+
+variables:
+  identity: '[A-Za-z_][A-Za-z_0-9]*'
+  integer: '(?:i[\d]+|0x[0-9a-f]+|0o[0-7]+|0b[01]+)'
+  cmp_flags: '(?i:always|never|eq|ne|eqz|nez|lt|ltz|le|gt|ge|gez|ltu|leu|gtu|geu|carry|notcarry)'
+
+contexts:
+  main:
+    - include: labels
+    - include: alias_def
+    - include: instruction_line
+
+    - match: \(
+      push: parenthesis
+    - match: \{
+      push: brace
+
+    - include: unmatched_brackets
+
+  prototype:
+    - include: comments
+
+  labels:
+    # meta_scope: markup.bold.eqasm
+    - match: '^\s*{{identity}}*\s*:'
+      scope: markup.bold.eqasm
+
+  alias_def:
+    - include: register_def
+    - include: directive
+
+  register_def:
+    - match: '(?i:\s*(\.register)[\s]+(r)[\d]+[\s]+(\w+))'
+      captures:
+        1: markup.bold.eqasm # entity.name.function.eqasm
+        2: markup.bold.register.eqasm
+        3: string.unquoted.eqasm
+
+  directive:
+    - match: '(?i:\s*(\.def_sym)[\s]+(\w+)[\s]+({{integer}})\s+(.*))'
+      captures:
+        1: markup.bold.eqasm
+        2: variable.function.eqasm
+        3: constant.numeric.integer.eqasm
+        4: invalid.illegal.content.eqasm
+
+  instruction_line:
+    - include: single_format
+    - include: vliw_format
+
+  single_format:
+    - include: classical_instructions
+    - include: quantum_single_format
+
+  vliw_format:
+    - match: '^\s*\|'
+      scope: invalid.illegal.verticalbar.eqasm
+    - match: '(?i:^\s*(bs)[\s]+([0-7]?))'
+      captures:
+        1: comment.line.bs.eqasm
+        2: constant.numeric.preinterval.eqasm
+      push: next_vliw_insn
+    - match: '\|'
+      scope: punctuation.separator.eqasm
+      push: next_vliw_insn
+
+
+  next_vliw_insn:
+    - match: '(?i:\s+qnop)'
+      scope: entity.name.function.eqasm
+      pop: true
+    - match: '(?i:[\s]+((c,)*\w+)[\s]+(s[\d]+|t[\d]+))'
+      captures:
+        1: source.quantum.eqasm
+        2: comment.control.binary.eqasm
+        3: entity.name.function.eqasm
+      pop: true
+
+  classical_instructions:
+    - match: '(?i:^\s*nop|stop\s*$)'
+      scope: keyword.control.eqasm
+
+    - include: branch_instructions
+    - include: arith_logic_instructions
+
+  branch_instructions:
+    - match: '(?i:\s*(goto|bra|brn)\s+(\w+)\s*$)'
+      captures:
+        1: keyword.control.eqasm
+        2: markup.underline.link.eqasm
+
+    - match: '(?i:^\s*(fbr)\s+({{cmp_flags}})(\s+|,\s*))'
+      captures:
+        1: keyword.control.eqasm
+        2: markup.bold.cmp_flags.eqasm
+      push: r_reg_last
+
+    - match: '(?i:^\s*(br)\s+({{cmp_flags}})\s*,\s*(\w+)\s*$)'
+      captures:
+        1: keyword.control.eqasm
+        2: markup.bold.cmp_flags.eqasm
+        3: markup.underline.link.eqasm
+
+    - match: '(?i:^\s*(fmr)\s+)'
+      captures:
+        1: keyword.control.eqasm
+      push: r_q_reg_r
+
+    - match: '(?i:^\s*(beq|bne|blt|ble|bgt|bge|bltu|bleu|bgtu|bgeu)\s+)'
+      captures:
+        1: keyword.control.eqasm
+      push: rreg_rreg_addr
+
+  rreg_rreg_addr:
+    - match: '(?i:\b(r)\d+\s*,\s*)'
+      captures:
+        1: markup.bold.register.eqasm
+      set: rreg_addr
+    - match: \b\w+\s*,\s*
+      scope: string.unquoted.eqasm
+      set: rreg_addr
+    - include: ignored_content
+
+  rreg_addr:
+    - match: '(?i:\b(r)\d+\s*,\s*(\w+)\s*)'
+      captures:
+        1: markup.bold.register.eqasm
+        2: markup.underline.link.eqasm
+      pop: true
+    - include: ignored_content
+
+  arith_logic_instructions:
+    - match: '(?i:^\s*(mov|ldi|ldui)\s+)'
+      captures:
+        1: keyword.control.eqasm
+      push: r_reg_to_num_r
+
+    - match: '(?i:^\s*(shl1|copy|mult2|not|cmp)\s+)'
+      scope: keyword.control.eqasm
+      push: r_reg_penultimate
+
+    - match: '(?i:^\s*(add|sub|addc|subc|and|or|xor|nand|nor|xnor)\s+)'
+      scope: keyword.control.eqasm
+      push: r_reg_antepenultimate
+
+  r_reg_antepenultimate:
+    - match: '(?i:\b(r)\d+\s*,\s*)'
+      captures:
+        1: markup.bold.register.eqasm
+      set: r_reg_penultimate
+    - match: \b\w+\s*,\s*
+      scope: string.unquoted.eqasm
+      set: r_reg_penultimate
+    - include: ignored_content
+
+  r_reg_penultimate:
+    - match: '(?i:\b(r)\d+\s*,\s*)'
+      captures:
+        1: markup.bold.register.eqasm
+      set: r_reg_last
+    - match: \b\w+\s*,\s*
+      scope: string.unquoted.eqasm
+      set: r_reg_last
+    - include: ignored_content
+
+  r_q_reg_r:
+    - match: '(?i:\b(r)\d+\s*,\s*)'
+      captures:
+        1: markup.bold.register.eqasm
+      set: q_reg_last
+    - match: \b\w+\s*,\s*
+      scope: string.unquoted.eqasm
+      set: q_reg_last
+    - include: ignored_content
+
+  r_reg_to_num_r:
+    - match: '(?i:\b(r)\d+\s*,\s*)'
+      captures:
+        1: markup.bold.register.eqasm
+      set: constants_numeric_last
+    - match: \b\w+\s*,\s*
+      scope: string.unquoted.eqasm
+      set: constants_numeric_last
+    - include: ignored_content
+
+  r_reg_last:
+    - match: '(?i:\b(r)\d+\b)'
+      captures:
+        1: markup.bold.register.eqasm
+      pop: true
+    - match: \b\w+\b
+      scope: string.unquoted.eqasm
+      pop: true
+    - include: ignored_content
+
+  r_reg:
+    - match: '(?i:\b(r)\d+\b)'
+      captures:
+        1: markup.bold.register.eqasm
+    - match: \b\w+\b
+      scope: string.unquoted.eqasm
+
+  q_reg_last:
+    - match: '(?i:\bq\d+\b)'
+      scope: variable.parameter.eqasm
+      pop: true
+    - match: \b\w+\b
+      scope: string.unquoted.eqasm
+      pop: true
+    - include: ignored_content
+
+  quantum_single_format:
+    - match: '(?i:^\s*(smis)\s+(s[0-9]+)(\s+|,\s*))'
+      captures:
+        1: keyword.control.eqasm
+        2: entity.name.function.eqasm
+      push: s_reg_content
+
+    - match: '(?i:^\s*(smit)\s+(t[0-9]+)(\s+|,\s*))'
+      captures:
+        1: keyword.control.eqasm
+        2: entity.name.function.eqasm
+      push: t_reg_content
+
+    - match: '(?i:^\s*(qwait)\s+([\d]+|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*)'
+      captures:
+        1: entity.name.function.eqasm
+        2: constant.numeric.integer.eqasm
+
+    - match: '(?i:^\s*(qwaitr)\s+(r[\d]+)\s*)'
+      captures:
+        1: entity.name.function.eqasm
+        2: variable.parameter.eqasm
+
+  s_reg_content:
+    # qubit number list
+    - match: '\{'
+      scope: punctuation.separator.bracket.eqasm
+      set: single_qubit_list
+
+    # integer represented mask
+    - match: '(?i:{{integer}}\s*$)'
+      scope: constant.numeric.integer.eqasm
+      pop: true
+
+    - include: ignored_content
+
+  single_qubit_list:
+    - match: '\s*[1-7]\s*'
+      scope: entity.name.function.eqasm
+    - match: ','
+      push: single_qubit_number
+    - match: '\}'
+      scope: punctuation.separator.bracket.eqasm
+      pop: true
+    - include: ignored_content
+
+  single_qubit_number:
+    - match: '\s*[1-7]\s*'
+      scope: entity.name.function.eqasm
+      pop: true
+    - match: '.*'
+      scope: invalid.illegal.qubitnumber.eqasm
+      pop: true
+
+  t_reg_content:
+        # qubit number list
+    - match: '\{'
+      scope: punctuation.separator.bracket.eqasm
+      set: two_qubit_list
+
+    # integer represented mask
+    - match: '(?i:{{integer}}\s*$)'
+      scope: constant.numeric.integer.eqasm
+      pop: true
+
+  two_qubit_list:
+    - match: '\s*\(\s*([1-7])\s*,\s*([1-7])\s*\)\s*'
+      captures:
+        1: entity.name.function.eqasm
+        2: entity.name.function.eqasm
+    - match: ','
+      push: two_qubit_pair
+    - match: '\}'
+      scope: punctuation.separator.bracket.eqasm
+      pop: true
+    - include: ignored_content
+
+  two_qubit_pair:
+    - match: '\s*\(\s*([1-7])\s*,\s*([1-7])\s*\)\s*'
+      captures:
+        1: entity.name.function.eqasm
+        2: entity.name.function.eqasm
+      pop: true
+    - match: '.*'
+      scope: invalid.illegal.qubitnumber.eqasm
+      pop: true
+
+  parenthesis:
+    - match: \)
+      pop: true
+    - include: main
+
+  brace:
+    - match: \}
+      pop: true
+    - include: main
+
+  comments:
+    - match: '#.*$\n?'
+      scope: comment.line.hash.eqasm
+
+  quantum_instructions:
+    - match: \b(?i:smis|smit|qwait|qwaitr)\b
+      scope: entity.name.function.eqasm
+
+  constants_numeric_last:
+    - match: '\b[\d]+\b'
+      scope: constant.numeric.integer.eqasm
+      pop: true
+    - match: '0[xX][0-9a-fA-F]+'
+      scope: constant.numeric.integer.hex.eqasm
+      pop: true
+    - match: '0[oO][0-7]+'
+      scope: constant.numeric.integer.octal.eqasm
+      pop: true
+    - match: '0[bB][01]+'
+      scope: constant.numeric.integer.binary.eqasm
+      pop: true
+    - match: '\b\w+\b'
+      # scope: string.unquoted.eqasm
+      scope: variable.function.eqasm
+      pop: true
+    - include: ignored_content
+
+  unmatched_brackets:
+    - match: \)
+      scope: invalid.illegal.stray-bracket-end
+    - match: \}
+      scope: invalid.illegal.stray-bracket-end
+
+  ignored_content:
+    - match: '.*'
+      scope: invalid.illegal.content.eqasm
