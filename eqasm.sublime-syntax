@@ -11,7 +11,7 @@ scope: source.eqasm
 
 variables:
   identity: '[A-Za-z_][A-Za-z_0-9]*'
-  integer: '(?:i[\d]+|0x[0-9a-f]+|0o[0-7]+|0b[01]+)'
+  integer: '(?i:[\d]+|0x[0-9a-f]+|0o[0-7]+|0b[01]+)'
   cmp_flags: '(?i:always|never|eq|ne|eqz|nez|lt|ltz|le|gt|ge|gez|ltu|leu|gtu|geu|carry|notcarry)'
 
 contexts:
@@ -33,7 +33,7 @@ contexts:
   labels:
     # meta_scope: markup.bold.eqasm
     - match: '^\s*{{identity}}*\s*:'
-      scope: markup.bold.eqasm
+      scope: markup.underline.link.eqasm
 
   alias_def:
     - include: register_def
@@ -105,7 +105,7 @@ contexts:
         2: markup.bold.cmp_flags.eqasm
       push: r_reg_last
 
-    - match: '(?i:^\s*(br)\s+({{cmp_flags}})\s*,\s*(\w+)\s*$)'
+    - match: '(?i:^\s*(br)\s+({{cmp_flags}})\s*,\s*(\w+)\s*)'
       captures:
         1: keyword.control.eqasm
         2: markup.bold.cmp_flags.eqasm
@@ -232,7 +232,7 @@ contexts:
         2: entity.name.function.eqasm
       push: t_reg_content
 
-    - match: '(?i:^\s*(qwait)\s+([\d]+|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*)'
+    - match: '(?i:^\s*(qwait)\s+({{integer}})\s*)'
       captures:
         1: entity.name.function.eqasm
         2: constant.numeric.integer.eqasm
@@ -274,7 +274,7 @@ contexts:
       pop: true
 
   t_reg_content:
-        # qubit number list
+    # qubit pair list
     - match: '\{'
       scope: punctuation.separator.bracket.eqasm
       set: two_qubit_list
@@ -283,6 +283,8 @@ contexts:
     - match: '(?i:{{integer}}\s*$)'
       scope: constant.numeric.integer.eqasm
       pop: true
+
+
 
   two_qubit_list:
     - match: '\s*\(\s*([0-6])\s*,\s*([0-6])\s*\)\s*'
@@ -319,10 +321,6 @@ contexts:
   comments:
     - match: '#.*$\n?'
       scope: comment.line.hash.eqasm
-
-  quantum_instructions:
-    - match: \b(?i:smis|smit|qwait|qwaitr)\b
-      scope: entity.name.function.eqasm
 
   constants_numeric_last:
     - match: '\b[\d]+\b'
