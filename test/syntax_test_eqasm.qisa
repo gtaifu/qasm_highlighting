@@ -1,12 +1,16 @@
-# SYNTAX TEST "eqasm.sublime-syntax"
-
-# <- NOP
+# SYNTAX TEST "myeqasm.sublime-syntax"
+# ^ source.eqasm comment.line.hash.eqasm
 
 .register r9 x
+# ^ markup.bold.eqasm
+
 .register r1 y
 
 .def_sym  MOV_SMALL_CONSTANT 0x1234
 .def_sym  MOV_LARGE_CONSTANT 0x12345678
+
+  backward_label:
+# <- markup.underline.link.eqasm
 
 NOP
 STOP
@@ -92,7 +96,10 @@ br_alias_fwd:     BRA        addr
 # Quantum double format instructions (some).
 
    bs 1 X s0
-bs 2 X s0 | Y s1
+1 X s0
+X s0
+  _random_label:     qnop
+another_one:     bs 2 X s0 | Y s1
 bs 3 X s0 | C,Y s1 | CNOT t2
 bs 4 QNOP | QNOP
 bs 5 QNOP
