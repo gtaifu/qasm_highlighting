@@ -339,8 +339,16 @@ contexts:
     - include: main
 
   comments:
-    - match: '#.*$\n?'
-      scope: comment.line.hash.eqasm
+    # - match: '#.*$\n?'
+    #   scope: comment.line.hash.eqasm
+    # # Comments begin with a '#' and finish at the end of the line.
+    - match: '#'
+      scope: punctuation.definition.comment.eqasm
+      push:
+        # This is an anonymous context push for brevity.
+        - meta_scope: comment.line.hash.eqasm
+        - match: $\n?
+          pop: true
 
   constants_numeric_last:
     - match: '{{integer}}'
